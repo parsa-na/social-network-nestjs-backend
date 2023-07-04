@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  email    String @unique @db.VarChar(200)
+
+  password      String    @db.VarChar(200)
+  bio           String?   @db.VarChar(500)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  article       Article[]
+  comments      Comment[]
+  role          Role      @default(USER)
+  likedArticles Article[] @relation("usersLikeArtikles")
+  following     User[]    @relation("following")
+  followedBy    User[]    @relation("following")
+}
+
+model Article {
+  id           Int       @id @default(autoincrement())
+  title        String    @db.VarChar(300)
+  description  String    @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  author       User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId     Int
+  comments     Comment[]
+  likedByUsers User[]    @relation("usersLikeArtikles")
+}
+
+model Comment {
+  id             Int       @id @default(autoincrement())
+  articleId      Int?
+  authorId       Int
+  article        Article?  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  author         User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  text           String    @db.Text
+  belowComments  Comment[] @relation("nestedComments")
+  upperComment   Comment?  @relation("nestedComments", fields: [upperCommentId], references: [id], onDelete: SetNull)
+  upperCommentId Int?
+}
+
+enum Role {
+  ADMIN
+  USER
+}
