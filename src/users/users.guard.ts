@@ -15,11 +15,11 @@ export class IsLoggedInGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const ctx = context.switchToHttp();
     const req = ctx.getRequest<Request>();
-    const token = req.cookies.token.token;
     //console.log(token);
     //const token = this.takaJwt(auth);
 
     try {
+      const token = req.cookies.token.token;
       const data = await this.jwtService.verifyAsync(token, {
         secret: this.config.get<string>('JWT_SECRET'),
       });

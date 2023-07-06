@@ -7,7 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ArticlesModule } from '../articles/articles.module';
 import { UsersInterceptor } from '../users/users.interceptor';
 import { CommentsModule } from '../comments/comments.module';
-import { SocketioModule } from 'src/socketio/socketio.module';
+//import { SocketioModule } from 'src/socketio/socketio.module';
 
 @Module({
   imports: [

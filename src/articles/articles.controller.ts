@@ -59,12 +59,30 @@ export class ArticlesController {
   @Put('like/:id')
   @UseGuards(IsLoggedInGuard)
   async likeArticle(@Param('id') id: number, @User() user) {
-    await this.articleService.likeArticle(id, user.id);
+    console.log(await this.articleService.isLikedUser(id, user.id));
+    if (await this.articleService.isLikedUser(id, user.id)) {
+      return {
+        likeNums: await this.articleService.unLikeArticle(id, user.id),
+        isLiked: false,
+      };
+    } else
+      return {
+        likeNums: await this.articleService.likeArticle(id, user.id),
+        isLiked: true,
+      };
   }
 
-  @Put('unlike/:id')
+  // @Put('unlike/:id')
+  // @UseGuards(IsLoggedInGuard)
+  // async unlikeArticle(@Param('id') id: number, @User() user) {
+  //   return await this.articleService.unLikeArticle(id, user.id);
+  // }
+
+  @Get('checkliked/:id')
   @UseGuards(IsLoggedInGuard)
-  async unlikeArticle(@Param('id') id: number, @User() user) {
-    await this.articleService.unLikeArticle(id, user.id);
+  async isLikedUser(@Param('id') id: number, @User() user) {
+    // console.log(user);
+    if (user === undefined) return { isLiked: false };
+    return await this.articleService.isLikedUser(id, user.id);
   }
 }

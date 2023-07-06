@@ -114,9 +114,21 @@ export class ArticlesService {
 
   async likeArticle(articleId: number, userId: number) {
     try {
-      await this.prisma.article.update({
+      const data = await this.prisma.article.update({
         where: {
           id: articleId,
+        },
+        select: {
+          _count: {
+            select: {
+              likedByUsers: true,
+            },
+          },
+          likedByUsers: {
+            select: {
+              id: true,
+            },
+          },
         },
         data: {
           likedByUsers: {
@@ -124,6 +136,8 @@ export class ArticlesService {
           },
         },
       });
+
+      return data._count;
     } catch (err) {
       throw new BadRequestException();
     }
@@ -131,9 +145,21 @@ export class ArticlesService {
 
   async unLikeArticle(articleId: number, userId: number) {
     try {
-      await this.prisma.article.update({
+      const data = await this.prisma.article.update({
         where: {
           id: articleId,
+        },
+        select: {
+          _count: {
+            select: {
+              likedByUsers: true,
+            },
+          },
+          likedByUsers: {
+            select: {
+              id: true,
+            },
+          },
         },
         data: {
           likedByUsers: {
@@ -141,8 +167,34 @@ export class ArticlesService {
           },
         },
       });
+
+      return data._count;
     } catch (err) {
       throw new BadRequestException();
     }
+  }
+
+  checkIsLikedUser(data: any, userId: number) {
+    const likes = data.likedByUsers.map((value) => value.id);
+    if (likes.includes(userId)) {
+      data['isLiked'] = true;
+    } else data['isLiked'] = false;
+    return data.isLiked;
+  }
+
+  async isLikedUser(id: number, userId: number) {
+    const data = await this.prisma.article.findFirstOrThrow({
+      where: {
+        id,
+      },
+      select: {
+        likedByUsers: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    return this.checkIsLikedUser(data, userId);
   }
 }
